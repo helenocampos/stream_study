@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
@@ -36,7 +35,11 @@ public class SensorsSimulation
             {
                 int sensorsAmount = Integer.valueOf(args[0]);
                 sensors = new ArrayList(sensorsAmount);
-                instantiateSensors(sensorsAmount);
+                if(args.length == 2){
+                    instantiateSensors(sensorsAmount, args[1]);
+                }else{
+                    instantiateSensors(sensorsAmount);
+                }
                 monitor();
             } catch (NumberFormatException e)
             {
@@ -52,12 +55,21 @@ public class SensorsSimulation
             sensors.add(new ProducerSensor(new TemperatureSensor("poco1-sensor_temp"+(i+1)), ProducerCreator.createProducer()));
         }
     }
+    
+    private static void instantiateSensors(int amount, String address)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            sensors.add(new ProducerSensor(new TemperatureSensor("poco1-sensor_temp"+(i+1)), ProducerCreator.createProducer(address)));
+        }
+    }
 
     public static void monitor()
     {
 
         try
         {
+            System.out.println("Initializing sensors monitoring...");
             while (true)
             {
                 for (ProducerSensor sensor : sensors)
@@ -68,8 +80,8 @@ public class SensorsSimulation
                     try
                     {
                         RecordMetadata metadata = sensor.getProducer().send(record).get();
-//                        System.out.println("Record sent with key " + key + " to partition " + metadata.partition()
-//                                + " with offset " + metadata.offset());
+                        System.out.println("Record sent with key " + key + " to partition " + metadata.partition()
+                                + " with offset " + metadata.offset());
                     } catch (ExecutionException | InterruptedException e)
                     {
                         System.out.println("Error in sending record");

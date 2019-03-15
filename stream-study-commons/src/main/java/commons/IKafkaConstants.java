@@ -12,7 +12,7 @@ package commons;
 public interface IKafkaConstants
 {
 
-    public static String KAFKA_ADDRESS = "localhost:9092";
+    public static String KAFKA_ADDRESS = "192.168.0.105:9092";
 //    public static String CLIENT_ID = "client1";
     public static String TOPIC_NAME = "pocos_temp";
     public static String GROUP_ID_CONFIG = "consumerGroup1";
