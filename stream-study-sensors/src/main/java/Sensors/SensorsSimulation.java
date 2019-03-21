@@ -26,6 +26,8 @@ public class SensorsSimulation
 {
 
     private static List<ProducerSensor> sensors;
+    private static int tempMin = 0;
+    private static int tempMax = 45;
 
     public static void main(String[] args)
     {
@@ -34,10 +36,15 @@ public class SensorsSimulation
             try
             {
                 int sensorsAmount = Integer.valueOf(args[0]);
+
                 sensors = new ArrayList(sensorsAmount);
-                if(args.length == 2){
+                if (args.length == 4)
+                {
+                    tempMin = Integer.valueOf(args[2]);
+                    tempMax = Integer.valueOf(args[3]);
                     instantiateSensors(sensorsAmount, args[1]);
-                }else{
+                } else
+                {
                     instantiateSensors(sensorsAmount);
                 }
                 monitor();
@@ -52,15 +59,15 @@ public class SensorsSimulation
     {
         for (int i = 0; i < amount; i++)
         {
-            sensors.add(new ProducerSensor(new TemperatureSensor("poco1-sensor_temp"+(i+1)), ProducerCreator.createProducer()));
+            sensors.add(new ProducerSensor(new TemperatureSensor("poco1-sensor_temp" + (i + 1)), ProducerCreator.createProducer()));
         }
     }
-    
+
     private static void instantiateSensors(int amount, String address)
     {
         for (int i = 0; i < amount; i++)
         {
-            sensors.add(new ProducerSensor(new TemperatureSensor("poco1-sensor_temp"+(i+1)), ProducerCreator.createProducer(address)));
+            sensors.add(new ProducerSensor(new TemperatureSensor("poco1-sensor_temp" + (i + 1)), ProducerCreator.createProducer(address)));
         }
     }
 
@@ -74,9 +81,9 @@ public class SensorsSimulation
             {
                 for (ProducerSensor sensor : sensors)
                 {
-                    String key=sensor.getSensor().getId()+"_"+ new Date().getTime();
+                    String key = sensor.getSensor().getId() + "_" + new Date().getTime();
                     ProducerRecord<String, TemperatureMeasurement> record = new ProducerRecord<>(IKafkaConstants.TOPIC_NAME, key,
-                            sensor.getSensor().getMeasurement());
+                            sensor.getSensor().getMeasurement(tempMin, tempMax));
                     try
                     {
                         RecordMetadata metadata = sensor.getProducer().send(record).get();

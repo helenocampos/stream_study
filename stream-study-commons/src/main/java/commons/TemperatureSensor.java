@@ -28,8 +28,8 @@ public class TemperatureSensor
         this.id = id;
     }
 
-    public TemperatureMeasurement getMeasurement()
+    public TemperatureMeasurement getMeasurement(int tempMin, int tempMax)
     {
-        return new TemperatureMeasurement(this.id);
+        return new TemperatureMeasurement(this.id, tempMin, tempMax);
     }
 }
